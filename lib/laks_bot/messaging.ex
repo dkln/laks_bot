@@ -50,10 +50,6 @@ defmodule LaksBot.Messaging do
     HTTPoison.post!("https://slack.com/api/channels.join", {:form, [{:token, Application.get_env(:laks_bot, :api_key)}, {:name, channel_name}]})
   end
 
-  def find_bot_user_id(%LaksBot.Connection{metadata: %{"self" => self}}) do
-    Logger.info "That's me #{inspect self}"
-  end
-
   @doc """
   Finds the channel id of the bot (by looking up _self)
   """

@@ -18,9 +18,27 @@ defmodule LaksBot.Worker do
     work(connection)
   end
 
+  @doc """
+  Handles private message to the bot
+  """
   defp handle_message(%{"type" => "message", "text" => text, "user" => user_id} = message, connection) do
-    Logger.info "User says #{text} -> #{inspect message}"
-    Messaging.find_bot_user_id(connection)
+    Logger.info connection.bot_id
+
+    case Regex.run(~r/^<@([0-9A-Z]+)>: (.*)/, text, capture: :all_but_first) do
+      [user_id, private_message] ->
+        cond do
+          user_id == connection.bot_id ->
+            Logger.info "Private message to me"
+
+          true ->
+            Logger.info "Private message to somebody"
+
+        end
+
+      nil ->
+        Logger.info "Message to everybody"
+
+    end
 
     {:ok, connection}
   end

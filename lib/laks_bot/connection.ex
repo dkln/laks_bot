@@ -2,7 +2,7 @@ defmodule LaksBot.Connection do
 
   require Logger
 
-  defstruct socket: nil, last_message_id: 1, metadata: nil
+  defstruct socket: nil, last_message_id: 1, metadata: nil, bot_id: nil
 
   @doc """
   Opens a Slack connection.
@@ -12,7 +12,7 @@ defmodule LaksBot.Connection do
     body = LaksBot.Api.get_info
     socket = Socket.connect!(body["url"])
 
-    %LaksBot.Connection{socket: socket, metadata: body}
+    %LaksBot.Connection{socket: socket, metadata: body, bot_id: body["self"]["id"]}
   end
 
   @doc """
