@@ -1,3 +1,4 @@
+
 defmodule LaksBot.Worker do
 
   alias LaksBot.Messaging
@@ -6,9 +7,9 @@ defmodule LaksBot.Worker do
   @doc """
   Starts worker process.
   """
-  def work do
+  def start_link do
     connection = LaksBot.Connection.open!
-    work(connection)
+    Task.start_link(fn -> work(connection) end)
   end
 
   def work(connection) do
@@ -22,16 +23,15 @@ defmodule LaksBot.Worker do
   Handles private message to the bot
   """
   defp handle_message(%{"type" => "message", "text" => text, "user" => user_id} = message, connection) do
-    Logger.info connection.bot_id
-
     case Regex.run(~r/^<@([0-9A-Z]+)>: (.*)/, text, capture: :all_but_first) do
       [user_id, private_message] ->
         cond do
           user_id == connection.bot_id ->
-            Logger.info "Private message to me"
+            Logger.info "Private message to me #{private_message} #{inspect message}"
+            LaksBot.Messaging.send!(connection, "O hi :wave:", message["channel"])
 
           true ->
-            Logger.info "Private message to somebody"
+            Logger.info "Private message to somebody #{private_message}"
 
         end
 

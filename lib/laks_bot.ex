@@ -5,6 +5,7 @@ defmodule LaksBot do
     import Supervisor.Spec, warn: false
 
     children = [
+      worker(LaksBot.Worker, [])
     ]
 
     opts = [strategy: :one_for_one, name: LaksBot.Supervisor]
