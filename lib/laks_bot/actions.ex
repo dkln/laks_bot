@@ -1,25 +1,26 @@
 defmodule LaksBot.Actions do
   require Logger
 
+  # regex, defined action and a list of arguments (that matches index in regex)
   @private_actions [
     {~r/^(gif me |picture me )(.*)$/i, :search_gif, [1]},
     {~r/^show karma$/,                 :show_karma, nil}
   ]
 
   @public_actions [
-    {~r/(.*)++$/, :increase_karma},
-    {~r/(.*)--$/, :decrease_karma}
+    {~r/([\w]+)\+\+$/, :increase_karma, [0]},
+    {~r/([\w]+)\-\-$/, :decrease_karma, [0]}
   ]
 
-  def match(:private, text) do
-    match(@private_actions, text)
+  def get_reaction_to_text(:private, text, %LaksBot.State{} = state) do
+    get_reaction_to_text(@private_actions, text, state)
   end
 
-  def match(:public, text) do
-    match(@public_actions, text)
+  def get_reaction_to_text(:public, text, %LaksBot.State{} = state) do
+    get_reaction_to_text(@public_actions, text, state)
   end
 
-  def match(actions, text) do
+  def get_reaction_to_text(actions, text, %LaksBot.State{} = state) do
     for {regex, method, arguments} <- actions do
       matches = Regex.run(regex, text, capture: :all_but_first)
 
@@ -28,6 +29,8 @@ defmodule LaksBot.Actions do
         perform_action(method, func_arguments)
       end
     end
+
+    {nil, state}
   end
 
   defp find_action_arguments(_matches, nil) do
@@ -43,10 +46,10 @@ defmodule LaksBot.Actions do
   end
 
   defp perform_action(:search_gif, [ gif ]) do
-    Logger.info "searching gif"
+
   end
 
-  defp perform_action(_action, _) do
-    Logger.info "unknown action"
+  defp perform_action(action, _) do
+    Logger.info "Action #{action} not defined. Please define it with :perform_action"
   end
 end

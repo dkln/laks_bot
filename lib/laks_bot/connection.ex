@@ -2,7 +2,7 @@ defmodule LaksBot.Connection do
 
   require Logger
 
-  defstruct socket: nil, last_message_id: 1, metadata: nil, bot_id: nil
+  defstruct socket: nil, last_message_id: 1, metadata: nil, bot_id: nil, state: nil
 
   @doc """
   Opens a Slack connection.

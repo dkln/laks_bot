@@ -9,42 +9,42 @@ defmodule LaksBot.Worker do
   """
   def start_link do
     connection = LaksBot.Connection.open!
-    Task.start_link(fn -> work(connection) end)
+    state = %LaksBot.State{}
+    Task.start_link(fn -> work(connection, state) end)
   end
 
-  def work(connection) do
+  def work(connection, state) do
     {:ok, message} = Messaging.receive(connection)
-    {:ok, connection} = handle_message(message, connection)
+    {:ok, connection, state} = handle_message(message, connection, state)
 
-    work(connection)
+    work(connection, state)
   end
 
   @doc """
   Handles private message to the bot
   """
-  defp handle_message(%{"type" => "message", "text" => text, "user" => user_id} = message, connection) do
+  defp handle_message(%{"type" => "message", "text" => text, "user" => user_id} = message, connection, %LaksBot.State{} = state) do
     case Regex.run(~r/^<@([0-9A-Z]+)>: (.*)/, text, capture: :all_but_first) do
-      [user_id, private_message] ->
+      [user_id, text] ->
         cond do
           user_id == connection.bot_id ->
-            Logger.info "Private message to me #{private_message} #{inspect message}"
-            LaksBot.Messaging.send!(connection, "O hi :wave:", message["channel"])
+            {reaction, state} = LaksBot.Actions.get_reaction_to_text(:private, text, state)
 
           true ->
-            Logger.info "Private message to somebody #{private_message}"
+            nil
 
         end
 
       nil ->
-        Logger.info "Message to everybody"
+        {reaction, state} = LaksBot.Actions.get_reaction_to_text(:public, text, state)
 
     end
 
-    {:ok, connection}
+    {:ok, connection, state}
   end
 
-  defp handle_message(%{}, connection) do
-    {:ok, connection}
+  defp handle_message(%{}, connection, %LaksBot.State{} = state) do
+    {:ok, connection, state}
   end
 
 end
