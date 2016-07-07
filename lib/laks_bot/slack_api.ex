@@ -1,4 +1,4 @@
-defmodule LaksBot.Api do
+defmodule LaksBot.SlackApi do
 
   require Logger
 
@@ -12,7 +12,7 @@ defmodule LaksBot.Api do
   end
 
   defp handle_response({:ok, %HTTPoison.Response{status_code: status_code, body: body}}) do
-    Logger.debug "response: #{inspect body}, code: #{status_code}"
+    Logger.debug "Error when retrieving Slack API: #{inspect body}, code: #{status_code}"
     {:error, nil}
   end
 

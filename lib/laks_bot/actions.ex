@@ -1,6 +1,9 @@
 defmodule LaksBot.Actions do
   require Logger
 
+  alias LaksBot.GiphyApi
+  alias LaksBot.Messaging
+
   # regex, defined action and a list of arguments (that matches index in regex)
   @private_actions [
     {~r/^(gif me |picture me )(.*)$/i, :search_gif, [1]},
@@ -26,11 +29,11 @@ defmodule LaksBot.Actions do
 
       if matches != nil do
         func_arguments = find_action_arguments(matches, arguments)
-        perform_action(method, func_arguments)
+        action = perform_action(method, func_arguments)
+
+        {action, state}
       end
     end
-
-    {nil, state}
   end
 
   defp find_action_arguments(_matches, nil) do
@@ -46,10 +49,12 @@ defmodule LaksBot.Actions do
   end
 
   defp perform_action(:search_gif, [ gif ]) do
-
+    {:ok, %{"images" => %{"original_still" => %{"url" => url}}}} = GiphyApi.search(String.trim(gif))
+    {:send_message, url}
   end
 
   defp perform_action(action, _) do
     Logger.info "Action #{action} not defined. Please define it with :perform_action"
+    :nothing
   end
 end

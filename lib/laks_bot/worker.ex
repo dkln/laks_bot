@@ -29,6 +29,7 @@ defmodule LaksBot.Worker do
         cond do
           user_id == connection.bot_id ->
             {reaction, state} = LaksBot.Actions.get_reaction_to_text(:private, text, state)
+            connection = handle_action(reaction, connection)
 
           true ->
             nil
@@ -37,6 +38,7 @@ defmodule LaksBot.Worker do
 
       nil ->
         {reaction, state} = LaksBot.Actions.get_reaction_to_text(:public, text, state)
+        connection = handle_action(reaction, connection)
 
     end
 
@@ -45,6 +47,14 @@ defmodule LaksBot.Worker do
 
   defp handle_message(%{}, connection, %LaksBot.State{} = state) do
     {:ok, connection, state}
+  end
+
+  defp handle_action({ :send_message, text }, %LaksBot.Connection{} = connection) do
+    Messaging.send!(connection, text, Messaging.find_bot_channel_id(connection))
+  end
+
+  defp handle_action(:nothing, %LaksBot.Connection{} = connection) do
+    connection
   end
 
 end

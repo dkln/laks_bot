@@ -9,7 +9,7 @@ defmodule LaksBot.Connection do
   """
   @spec open! :: LaksBot.Connection | no_return
   def open! do
-    body = LaksBot.Api.get_info
+    body = LaksBot.SlackApi.get_info
     socket = Socket.connect!(body["url"])
 
     %LaksBot.Connection{socket: socket, metadata: body, bot_id: body["self"]["id"]}
