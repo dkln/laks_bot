@@ -17,3 +17,4 @@ erl_crash.dump
 *.ez
 
 .deliver
+config/dev.exs
