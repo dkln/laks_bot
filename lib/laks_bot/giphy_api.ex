@@ -9,8 +9,11 @@ defmodule LaksBot.GiphyApi do
 
   defp handle_response({:ok, %HTTPoison.Response{status_code: status_code} = response}) when status_code in 200..399 do
     {:ok, result} = Poison.decode(response.body)
-    data = List.to_tuple(result["data"])
-    {:ok, elem(data, 0)}
+
+    case result["data"] do
+      [ first | _ ] -> {:ok, first}
+      []            -> {:not_found}
+    end
   end
 
   defp handle_response({:ok, %HTTPoison.Response{status_code: status_code, body: body}}) do

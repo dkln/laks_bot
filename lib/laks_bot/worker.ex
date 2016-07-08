@@ -2,6 +2,11 @@
 defmodule LaksBot.Worker do
 
   alias LaksBot.Messaging
+  alias LaksBot.ReactionLookup
+  alias LaksBot.ReactionPerform
+  alias LaksBot.Connection
+  alias LaksBot.State
+
   require Logger
 
   @doc """
@@ -23,38 +28,30 @@ defmodule LaksBot.Worker do
   @doc """
   Handles private message to the bot
   """
-  defp handle_message(%{"type" => "message", "text" => text, "user" => user_id} = message, connection, %LaksBot.State{} = state) do
+  defp handle_message(%{"type" => "message", "text" => text, "user" => user_id} = message, connection, %State{} = state) do
     case Regex.run(~r/^<@([0-9A-Z]+)>: (.*)/, text, capture: :all_but_first) do
       [user_id, text] ->
         cond do
           user_id == connection.bot_id ->
-            {reaction, state} = LaksBot.Actions.get_reaction_to_text(:private, text, state)
-            connection = handle_action(reaction, connection)
+            {connection, state} =
+              ReactionLookup.find(:private, text)
+                |> ReactionPerform.perform(connection, state)
 
-          true ->
-            nil
-
+          true -> nil
         end
 
       nil ->
-        {reaction, state} = LaksBot.Actions.get_reaction_to_text(:public, text, state)
-        connection = handle_action(reaction, connection)
+        {connection, state} =
+          ReactionLookup.find(:public, text)
+            |> ReactionPerform.perform(connection, state)
 
     end
 
     {:ok, connection, state}
   end
 
-  defp handle_message(%{}, connection, %LaksBot.State{} = state) do
+  defp handle_message(%{}, connection, %State{} = state) do
     {:ok, connection, state}
-  end
-
-  defp handle_action({ :send_message, text }, %LaksBot.Connection{} = connection) do
-    Messaging.send!(connection, text, Messaging.find_bot_channel_id(connection))
-  end
-
-  defp handle_action(:nothing, %LaksBot.Connection{} = connection) do
-    connection
   end
 
 end

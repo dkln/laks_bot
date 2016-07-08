@@ -34,9 +34,7 @@ defmodule LaksBot.Messaging do
   """
   @spec send!(LaksBot.Connection, String.t, String.t) :: LaksBot.Connection
   def send!(connection = %LaksBot.Connection{socket: socket, last_message_id: message_id}, text, channel_id) do
-    json = Poison.encode!(%{id: message_id, type: "message", text: text, channel: channel_id}) |>
-      IO.iodata_to_binary
-
+    {:ok, json } = Poison.encode(%{id: message_id, type: "message", text: text, channel: channel_id}) 
     :ok = Socket.Web.send!(socket, {:text, json})
 
     %LaksBot.Connection{connection | last_message_id: message_id + 1}
