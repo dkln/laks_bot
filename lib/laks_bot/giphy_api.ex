@@ -22,7 +22,7 @@ defmodule LaksBot.GiphyApi do
   end
 
   defp get_url(terms) do
-    token = Application.get_env(:laks_bot, :giphy_api_key)
+    token = System.get_env("GIPHY_API_KEY") || Application.get_env(:laks_bot, :giphy_api_key)
     "http://api.giphy.com/v1/gifs/search?q=#{URI.encode terms}&api_key=#{URI.encode token}&limit=1"
   end
 

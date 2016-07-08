@@ -17,7 +17,7 @@ defmodule LaksBot.SlackApi do
   end
 
   defp get_url do
-    token = Application.get_env(:laks_bot, :api_key)
+    token = System.get_env("SLACK_API_KEY") || Application.get_env(:laks_bot, :api_key)
     "https://slack.com/api/rtm.start?token=#{URI.encode token}"
   end
 
