@@ -1,8 +1,0 @@
-LaksBot.Messaging.open! |> LaksBot.Messaging.send!("Dit is een test", "C0C9LFR4K") |> LaksBot.Messaging.close
-
-c = LaksBot.Connection.open!
-spawn fn -> LaksBot.Messaging.receive!(c) end
-
-c = LaksBot.Slack.open!
-{ :ok, c } = LaksBot.Slack.send!(c, "Dit is een test", "C0C9LFR4K")
-LaksBot.Slack.close(c)
