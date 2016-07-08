@@ -1,3 +1,3 @@
 defmodule LaksBot.State do
-  defstruct karma: nil
+  defstruct karma: %{}
 end
