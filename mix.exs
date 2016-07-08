@@ -33,7 +33,7 @@ defmodule LaksBot.Mixfile do
       {:poison, "~> 2.0"},
       {:apex, "~>0.5.0"},
       {:socket, github: "meh/elixir-socket"},
-
+      {:edeliver, ">= 1.2.10"},
       {:mock, "~> 0.1", only: :test}
     ]
   end
